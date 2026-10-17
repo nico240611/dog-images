@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pawsome Shots | Premium Dog Gallery</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        amber: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Smooth transitions for theme toggle and layout adjustments */
+        * {
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.15s ease;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(245, 158, 11, 0.5);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(245, 158, 11, 0.8);
+        }
+
+        /* Custom Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .glass-panel {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* Subtle floating hero decoration */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-white">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 w-full glass-panel border-b border-slate-200/80 dark:border-slate-800/80 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="filterGallery('all')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center text-white shadow-md shadow-amber-500/20">
+                    <i data-lucide="dog" class="w-6 h-6"></i>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 dark:from-amber-400 dark:to-amber-200 bg-clip-text text-transparent">
+                    Pawsome<span class="text-slate-800 dark:text-slate-100 font-normal">Shots</span>
+                </span>
+            </div>
+
+            <!-- Controls (Search & Theme Toggle) -->
+            <div class="flex items-center space-x-3">
+                <!-- Search Input Container -->
+                <div class="relative hidden sm:block w-48 md:w-64">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Search breed or name..." 
+                        oninput="handleSearch()"
+                        class="w-full pl-9 pr-4 py-1.5 text-sm rounded-full border border-slate-300 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-900/80 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
+                    >
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+                </div>
+
+                <!-- Dark/Light Theme Switcher -->
+                <button 
+                    id="themeToggle" 
+                    onclick="toggleTheme()" 
+                    aria-label="Toggle Theme"
+                    class="p-2.5 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 hover:border-amber-500/30 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                >
+                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                    <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Hero Section -->
+        <section class="relative py-12 md:py-16 text-center max-w-3xl mx-auto">
+            <!-- Background Decorative Glow -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-amber-500/10 dark:bg-amber-500/5 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50 mb-4 animate-float">
+                <i data-lucide="heart" class="w-3.5 h-3.5 text-amber-500 fill-amber-500"></i>
+                Curated Canine Collection
+            </span>
+
+            <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-4">
+                Capturing Pure <span class="bg-gradient-to-r from-amber-500 to-amber-600 bg-clip-text text-transparent">Dog Joy</span>
+            </h1>
+            <p class="text-base sm:text-lg text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto">
+                Explore high-resolution portraits of playfulness, loyalty, and unconditional love. Filter by categories to discover your favorite companions.
+            </p>
+
+            <!-- Mobile Search Bar -->
+            <div class="mt-6 sm:hidden relative w-full">
+                <input 
+                    type="text" 
+                    id="mobileSearchInput" 
+                    placeholder="Search breed or name..." 
+                    oninput="handleSearch(true)"
+                    class="w-full pl-10 pr-4 py-2 text-sm rounded-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                >
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
+            </div>
+        </section>
+
+        <!-- Category Filter Buttons -->
+        <section class="mb-10">
+            <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3" id="categoryContainer">
+                <!-- Dynamically filled with categories via JS -->
+            </div>
+        </section>
+
+        <!-- Gallery Grid -->
+        <section id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            <!-- Dynamic Photo Cards rendered here -->
+        </section>
+
+        <!-- Empty State (When search/filter has no results) -->
+        <div id="emptyState" class="hidden text-center py-16">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-slate-400">
+                <i data-lucide="frown" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200">No dogs found</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Try adjusting your search terms or filter selection.</p>
+            <button onclick="filterGallery('all')" class="mt-4 px-4 py-2 text-sm font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 rounded-lg transition-colors">
+                Clear Filters
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-slate-200 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/50 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+            <div class="flex items-center space-x-2">
+                <i data-lucide="dog" class="w-4 h-4 text-amber-500"></i>
+                <span>&copy; <span id="currentYear"></span> PawsomeShots Gallery. All photo rights reserved.</span>
+            </div>
+            <div class="flex items-center space-x-6">
+                <span class="hover:text-amber-500 cursor-pointer transition-colors" onclick="filterGallery('Puppies')">Puppies</span>
+                <span class="hover:text-amber-500 cursor-pointer transition-colors" onclick="filterGallery('Rescue')">Rescue Dogs</span>
+                <span class="hover:text-amber-500 cursor-pointer transition-colors" onclick="filterGallery('Golden Retrievers')">Golden Retrievers</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Fullscreen Lightbox Modal -->
+    <div id="lightboxModal" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <!-- Close Button -->
+        <button onclick="closeLightbox()" class="absolute top-4 right-4 z-10 p-2 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white transition-colors focus:outline-none" aria-label="Close Lightbox">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+
+        <!-- Lightbox Content Container -->
+        <div class="relative max-w-4xl w-full bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]">
+            <!-- Image Area -->
+            <div class="relative md:w-3/5 bg-black flex items-center justify-center overflow-hidden min-h-[250px] md:min-h-[450px]">
+                <img id="lightboxImg" src="" alt="" class="max-h-[70vh] md:max-h-[85vh] w-full object-contain">
+            </div>
+
+            <!-- Details Sidebar -->
+            <div class="md:w-2/5 p-6 flex flex-col justify-between bg-white dark:bg-slate-900">
+                <div>
+                    <!-- Category Badge -->
+                    <div class="flex items-center justify-between mb-3">
+                        <span id="lightboxCategory" class="px-2.5 py-0.5 text-xs font-semibold rounded-md bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800"></span>
+                        <div class="flex items-center text-xs text-slate-400 gap-1">
+                            <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                            <span id="lightboxViews">1.2k views</span>
+                        </div>
+                    </div>
+
+                    <!-- Title & Breed -->
+                    <h2 id="lightboxTitle" class="text-2xl font-bold text-slate-900 dark:text-white mb-1"></h2>
+                    <p id="lightboxBreed" class="text-sm font-medium text-amber-600 dark:text-amber-400 mb-4"></p>
+
+                    <!-- Description -->
+                    <p id="lightboxDesc" class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-6"></p>
+                </div>
+
+                <!-- Interactive Like & Share Buttons -->
+                <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    <button id="likeBtn" onclick="toggleLike()" class="flex items-center space-x-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-700 dark:text-slate-300 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+                        <i data-lucide="heart" id="likeIcon" class="w-4 h-4"></i>
+                        <span id="likeCount" class="text-sm font-semibold">0</span>
+                    </button>
+
+                    <button onclick="sharePhoto()" class="flex items-center space-x-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-medium text-sm transition-colors shadow-md shadow-amber-500/20">
+                        <i data-lucide="share-2" class="w-4 h-4"></i>
+                        <span>Share</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification for Share action -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-4 py-3 rounded-xl shadow-xl flex items-center space-x-3 pointer-events-none">
+        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400 dark:text-emerald-600"></i>
+        <span id="toastMsg" class="text-sm font-medium">Link copied to clipboard!</span>
+    </div>
+
+    <!-- JavaScript Gallery Logic -->
+    <script>
+        // Sample High Quality Dog Photos Data
+        const dogPhotos = [
+            {
+                id: 1,
+                name: "Barnaby",
+                breed: "Golden Retriever",
+                category: "Golden Retrievers",
+                description: "Barnaby loves running in fields of golden grass during sunset hours.",
+                url: "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=800&q=80",
+                likes: 342,
+                views: "2.4k"
+            },
+            {
+                id: 2,
+                name: "Luna",
+                breed: "Husky Mix",
+                category: "Rescue",
+                description: "Adopted two years ago, Luna is known for her energetic personality and soulful eyes.",
+                url: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=800&q=80",
+                likes: 512,
+                views: "4.1k"
+            },
+            {
+                id: 3,
+                name: "Milo & Otis",
+                breed: "Labrador Puppies",
+                category: "Puppies",
+                description: "Two playful littermates sharing their very first outdoor afternoon adventure together.",
+                url: "https://images.unsplash.com/photo-1591160690555-5debfba289f0?auto=format&fit=crop&w=800&q=80",
+                likes: 890,
+                views: "6.8k"
+            },
+            {
+                id: 4,
+                name: "Rex",
+                breed: "German Shepherd",
+                category: "Active Dogs",
+                description: "Rex is an agile champion who thrives on long mountain hikes and frisbee games.",
+                url: "https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?auto=format&fit=crop&w=800&q=80",
+                likes: 275,
+                views: "1.9k"
+            },
+            {
+                id: 5,
+                name: "Daisy",
+                breed: "Corgi",
+                category: "Puppies",
+                description: "Small legs with a huge heart! Daisy loves exploring gardens and taking naps in sunny spots.",
+                url: "https://images.unsplash.com/photo-1612536057832-2ff7ead78156?auto=format&fit=crop&w=800&q=80",
+                likes: 640,
+                views: "5.2k"
+            },
+            {
+                id: 6,
+                name: "Cooper",
+                breed: "Golden Retriever Puppy",
+                category: "Golden Retrievers",
+                description: "Cooper at 10 weeks old discovering how fun water sprinkles can be on a warm day.",
+                url: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80",
+                likes: 920,
+                views: "8.3k"
+            },
+            {
+                id: 7,
+                name: "Bella",
+                breed: "Border Collie",
+                category: "Active Dogs",
+                description: "High speed, high intelligence, and endless enthusiasm for playing fetch.",
+                url: "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=800&q=80",
+                likes: 410,
+                views: "3.5k"
+            },
+            {
+                id: 8,
+                name: "Charlie",
+                breed: "Mixed Breed",
+                category: "Rescue",
+                description: "Saved from a local shelter, Charlie now spends his weekends chasing tennis balls at the beach.",
+                url: "https://images.unsplash.com/photo-1534361960057-19889db9875e?auto=format&fit=crop&w=800&q=80",
+                likes: 388,
+                views: "2.7k"
+            },
+            {
+                id: 9,
+                name: "Teddy",
+                breed: "French Bulldog",
+                category: "Puppies",
+                description: "Master of funny facial expressions and expert couch nap companion.",
+                url: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=800&q=80",
+                likes: 730,
+                views: "5.9k"
+            }
+        ];
+
+        // Categories list
+        const categories = ["All", "Puppies", "Rescue", "Active Dogs", "Golden Retrievers"];
+        
+        let currentCategory = "All";
+        let currentSearchQuery = "";
+        let activePhotoObj = null;
+        let isLikedMap = {};
+
+        // Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+            renderCategories();
+            renderGallery();
+            lucide.createIcons();
+        });
+
+        // Theme Toggle Functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Check system preference or stored theme
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // Render Category Filter Buttons
+        function renderCategories() {
+            const container = document.getElementById('categoryContainer');
+            container.innerHTML = categories.map(cat => {
+                const isActive = cat.toLowerCase() === currentCategory.toLowerCase();
+                const activeClasses = isActive 
+                    ? "bg-amber-500 text-white shadow-md shadow-amber-500/25 border-amber-500" 
+                    : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-amber-500/50 hover:text-amber-500";
+                
+                return `
+                    <button 
+                        onclick="filterGallery('${cat}')"
+                        class="px-4 py-2 text-xs sm:text-sm font-semibold rounded-full border transition-all duration-200 ${activeClasses}"
+                    >
+                        ${cat}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // Filter Function
+        function filterGallery(category) {
+            currentCategory = category;
+            renderCategories();
+            renderGallery();
+        }
+
+        // Search Input Handling
+        function handleSearch(isMobile = false) {
+            const inputId = isMobile ? 'mobileSearchInput' : 'searchInput';
+            currentSearchQuery = document.getElementById(inputId).value.toLowerCase().trim();
+            
+            // Sync both inputs
+            if(isMobile) {
+                document.getElementById('searchInput').value = currentSearchQuery;
+            } else {
+                document.getElementById('mobileSearchInput').value = currentSearchQuery;
+            }
+
+            renderGallery();
+        }
+
+        // Render Cards into Responsive Grid
+        function renderGallery() {
+            const grid = document.getElementById('galleryGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            const filtered = dogPhotos.filter(photo => {
+                const matchesCategory = (currentCategory === "All" || currentCategory === "all") || photo.category === currentCategory;
+                const matchesSearch = photo.name.toLowerCase().includes(currentSearchQuery) || 
+                                      photo.breed.toLowerCase().includes(currentSearchQuery) ||
+                                      photo.description.toLowerCase().includes(currentSearchQuery);
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            grid.innerHTML = filtered.map(photo => {
+                const liked = isLikedMap[photo.id];
+                return `
+                <div class="group relative bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200/80 dark:border-slate-800/80 shadow-sm hover:shadow-xl hover:border-amber-500/30 transition-all duration-300 flex flex-col cursor-pointer" onclick="openLightbox(${photo.id})">
+                    
+                    <!-- Image Container with Zoom Effect -->
+                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-800">
+                        <img 
+                            src="${photo.url}" 
+                            alt="${photo.name} - ${photo.breed}"
+                            loading="lazy"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                            onerror="this.src='https://placehold.co/800x600/f59e0b/ffffff?text=${encodeURIComponent(photo.name)}'"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                            <span class="text-xs font-medium text-white/90 flex items-center gap-1">
+                                <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i> Click to enlarge
+                            </span>
+                        </div>
+
+                        <!-- Category Tag Badge -->
+                        <span class="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-semibold glass-panel text-slate-800 dark:text-slate-100 border border-white/20 shadow-sm">
+                            ${photo.category}
+                        </span>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="p-5 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <h3 class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-amber-500 transition-colors">
+                                    ${photo.name}
+                                </h3>
+                                <span class="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
+                                    <i data-lucide="heart" class="w-3.5 h-3.5 ${liked ? 'text-red-500 fill-red-500' : ''}"></i>
+                                    ${photo.likes + (liked ? 1 : 0)}
+                                </span>
+                            </div>
+                            <p class="text-xs font-medium text-amber-600 dark:text-amber-400 mb-2">
+                                ${photo.breed}
+                            </p>
+                            <p class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                                ${photo.description}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            // Re-initialize Lucide icons after dynamic HTML injection
+            lucide.createIcons();
+        }
+
+        // Lightbox Modal Handlers
+        function openLightbox(id) {
+            const photo = dogPhotos.find(p => p.id === id);
+            if (!photo) return;
+
+            activePhotoObj = photo;
+            
+            document.getElementById('lightboxImg').src = photo.url;
+            document.getElementById('lightboxTitle').textContent = photo.name;
+            document.getElementById('lightboxBreed').textContent = photo.breed;
+            document.getElementById('lightboxCategory').textContent = photo.category;
+            document.getElementById('lightboxDesc').textContent = photo.description;
+            document.getElementById('lightboxViews').textContent = photo.views + ' views';
+
+            updateLikeButtonState();
+
+            const modal = document.getElementById('lightboxModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+            }, 10);
+
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            const modal = document.getElementById('lightboxModal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        // Close Lightbox when clicking backdrop
+        document.getElementById('lightboxModal').addEventListener('click', (e) => {
+            if (e.target.id === 'lightboxModal') {
+                closeLightbox();
+            }
+        });
+
+        // Close on Escape Key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+
+        // Toggle Like State
+        function toggleLike() {
+            if (!activePhotoObj) return;
+            const id = activePhotoObj.id;
+            isLikedMap[id] = !isLikedMap[id];
+            
+            updateLikeButtonState();
+            renderGallery(); // Sync count with grid card
+        }
+
+        function updateLikeButtonState() {
+            if (!activePhotoObj) return;
+            const liked = isLikedMap[activePhotoObj.id];
+            const countSpan = document.getElementById('likeCount');
+            const icon = document.getElementById('likeIcon');
+            const btn = document.getElementById('likeBtn');
+
+            const totalLikes = activePhotoObj.likes + (liked ? 1 : 0);
+            countSpan.textContent = totalLikes;
+
+            if (liked) {
+                icon.classList.add('text-red-500', 'fill-red-500');
+                btn.classList.add('bg-red-50', 'dark:bg-red-950/30', 'text-red-500');
+            } else {
+                icon.classList.remove('text-red-500', 'fill-red-500');
+                btn.classList.remove('bg-red-50', 'dark:bg-red-950/30', 'text-red-500');
+            }
+        }
+
+        // Copy Share Link & Show Toast
+        function sharePhoto() {
+            const textToCopy = window.location.href;
+            
+            // Clipboard Copy Command Fallback
+            const tempInput = document.createElement("input");
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            showToast("Photo link copied to clipboard!");
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = message;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
